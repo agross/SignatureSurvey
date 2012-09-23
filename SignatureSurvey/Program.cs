@@ -34,6 +34,12 @@ namespace SignatureSurvey
 
     static string GetPathToFile(string[] args)
     {
+      if (args.Length < 1)
+      {
+        Console.WriteLine("Please pass a file to parse as the first command line argument.");
+        Environment.Exit((int) ExitCode.FileNotFound);
+      }
+
       var path = args[0];
       if (!File.Exists(path))
       {
