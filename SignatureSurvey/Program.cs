@@ -69,7 +69,7 @@ namespace SignatureSurvey
           }
         }
 
-        Console.WriteLine("{0} {1} {2}", lines, path, pattern);
+        Console.WriteLine("{0,4} {1} {2}", lines, path, pattern);
       }
     }
   }
