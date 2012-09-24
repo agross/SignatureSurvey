@@ -2,18 +2,12 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SignatureSurvey
 {
   class Program
   {
-    enum ExitCode
-    {
-      Success = 0,
-      FileNotFound = 1,
-      GenericError = 2
-    }
-
     static readonly char[] Chars = { '{', '}', ';' };
 
     static void Main(string[] args)
@@ -21,7 +15,8 @@ namespace SignatureSurvey
       try
       {
         var path = GetPathToFile(args);
-        Inspect(path);
+        var root = GetRootPath(args);
+        Inspect(path, root);
 
         Environment.Exit((int) ExitCode.Success);
       }
@@ -49,7 +44,17 @@ namespace SignatureSurvey
       return path;
     }
 
-    static void Inspect(string path)
+    static string GetRootPath(string[] args)
+    {
+      if (args.Length < 2)
+      {
+        return null;
+      }
+
+      return args[1];
+    }
+
+    static void Inspect(string path, string root)
     {
       using (var stream = File.OpenRead(path))
       {
@@ -69,8 +74,29 @@ namespace SignatureSurvey
           }
         }
 
-        Console.WriteLine("{0,4} {1} {2}", lines, path, pattern);
+        var pathMaybeWithoutRoot = RemoveRootForDisplay(path, root);
+        Console.WriteLine("{0,4} {1} {2}", lines, pathMaybeWithoutRoot, pattern);
       }
+    }
+
+    static string RemoveRootForDisplay(string path, string root)
+    {
+      if (String.IsNullOrEmpty(root))
+      {
+        return path;
+      }
+
+      var pathUri = new Uri(Path.GetFullPath(path));
+      var rootUri = new Uri(Path.GetFullPath(root));
+      var relativePath = rootUri.MakeRelativeUri(pathUri).ToString();
+      return Uri.UnescapeDataString(relativePath).Replace('/', Path.DirectorySeparatorChar);
+    }
+
+    enum ExitCode
+    {
+      Success = 0,
+      FileNotFound = 1,
+      GenericError = 2
     }
   }
 }
