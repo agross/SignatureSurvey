@@ -1,0 +1,10 @@
+# A sample Guardfile
+# More info at https://github.com/guard/guard#readme
+
+notification :off
+
+guard :shell, :all_on_start => true do
+  watch(%r{\.cs$}) do |files|
+    system "SignatureSurvey.exe", File.join(::Guard.options[:watchdir], files[0]), ::Guard.options[:watchdir]
+  end
+end
